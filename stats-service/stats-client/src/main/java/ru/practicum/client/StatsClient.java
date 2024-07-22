@@ -41,10 +41,13 @@ public class StatsClient {
         rest.postForEntity("/hit", new HttpEntity<>(hit), Void.class);
     }
 
-    public List<ViewStats> getStats(List<Long> id, Boolean unique) {
+    //public List<ViewStats> getStats(List<Long> id, Boolean unique) {
+    public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<Long> id, Boolean unique) {
         Map<String, Object> parameters = Map.of(
-                "start", LocalDateTime.now().minusYears(5).format(formatter),
-                "end", LocalDateTime.now().plusYears(5).format(formatter),
+                //"start", LocalDateTime.now().minusYears(5).format(formatter),
+                "start", start.format(formatter),
+                // "end", LocalDateTime.now().plusYears(5).format(formatter),
+                "end", end.format(formatter),
                 "uris", (id.stream().map(eventId -> "/events/" + eventId).collect(Collectors.toList())),
                 "unique", unique
         );

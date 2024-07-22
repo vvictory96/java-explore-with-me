@@ -26,7 +26,8 @@ public class StatsServiceImpl implements StatsService {
     public void postHit(EndpointHit hit) {
         Stats stats = STATS_MAPPER.endpointHitToStats(hit);
         log.info("Create new hit: {}", stats);
-        statsRepository.save(stats);
+        statsRepository.save(STATS_MAPPER.endpointHitToStats(hit));
+        log.info("Hit was create");
     }
 
 

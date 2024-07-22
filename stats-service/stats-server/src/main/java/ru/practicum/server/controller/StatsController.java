@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import ru.practicum.dto.ViewStats;
 import ru.practicum.server.exception.ValidationException;
 import ru.practicum.server.service.StatsService;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,21 +32,21 @@ public class StatsController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void postHit(@RequestBody EndpointHit hit) {
+    public void postHit(@Valid @RequestBody EndpointHit hit) {
         log.info("---START POST HIT ENDPOINT---");
         statsService.postHit(hit);
     }
 
-    @GetMapping(name = "/stats")
-    public List<ViewStats> getStats(@RequestParam @DateTimeFormat(pattern = FORMAT) LocalDateTime start,
-                                    @RequestParam @DateTimeFormat(pattern = FORMAT) LocalDateTime end,
-                                    @RequestParam(required = false) List<String> uris,
-                                    @RequestParam(defaultValue = "false") Boolean unique) {
+    @GetMapping("/stats")
+    public ResponseEntity<List<ViewStats>> getStats(@RequestParam @DateTimeFormat(pattern = FORMAT) LocalDateTime start,
+                                                    @RequestParam @DateTimeFormat(pattern = FORMAT) LocalDateTime end,
+                                                    @RequestParam(required = false) List<String> uris,
+                                                    @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("---START GET STATS ENDPOINT---");
         if (start.isAfter(end)) {
             throw new ValidationException(
                     String.format("Unexpected time interval: start %s; end %s", start, end));
         }
-        return statsService.getStats(start, end, uris, unique);
+        return new ResponseEntity<>(statsService.getStats(start, end, uris, unique), HttpStatus.OK);
     }
 }
