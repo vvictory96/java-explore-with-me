@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.service.CommentService;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.dto.UpdateEventUserRequest;
@@ -35,6 +38,7 @@ public class PrivateEventController {
 
     private final EventService eventService;
     private final RequestService requestService;
+    private final CommentService commentService;
 
     @GetMapping
     public List<EventFullDto> getAllEvents(@PathVariable Long userId,
@@ -80,5 +84,30 @@ public class PrivateEventController {
                                                          @RequestBody EventRequestStatusUpdateRequest updateRequest) {
         log.info("---START UPDATE REQUEST EVENT BY USER---");
         return requestService.updateRequestsByUser(userId, eventId, updateRequest);
+    }
+
+    @PostMapping("/comments")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDto createComment(@PathVariable Long userId,
+                                    @RequestParam Long eventId,
+                                    @Valid @RequestBody CommentDto commentDto) {
+        log.info("---START GET COMMENTS BY USER AND EVENT---");
+        return commentService.createComment(userId, eventId, commentDto);
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable Long userId,
+                              @PathVariable Long commentId) {
+        log.info("---START DELETE COMMENT BY USER---");
+        commentService.deleteCommentById(commentId, userId);
+    }
+
+    @PatchMapping("/comments/{commentId}")
+    public CommentDto updateComment(@PathVariable Long userId,
+                                    @PathVariable Long commentId,
+                                    @Valid @RequestBody CommentDto commentDto) {
+        log.info("---START UPDATE COMMENT BY USER---");
+        return commentService.updateCommentById(commentId, userId, commentDto);
     }
 }

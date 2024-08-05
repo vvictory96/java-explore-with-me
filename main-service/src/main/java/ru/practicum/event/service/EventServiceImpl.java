@@ -1,13 +1,13 @@
 package ru.practicum.event.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.category.model.Category;
 import ru.practicum.client.StatsClient;
 import ru.practicum.dto.ViewStats;
+
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
@@ -30,6 +30,7 @@ import ru.practicum.util.ObjectCheckExistence;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +42,6 @@ import java.util.stream.Stream;
 import static ru.practicum.event.enums.Sort.VIEWS;
 import static ru.practicum.event.mapper.EventMapper.EVENT_MAPPER;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -188,6 +188,7 @@ public class EventServiceImpl implements EventService {
         event.setViews(hits + 1);
         event.setConfirmedRequests((long) requestRepository.findAllByEventIdInAndStatus(List.of(id),
                 RequestStatus.CONFIRMED).size());
+        event.setComments(checkExistence.getCommentsCount(id));
         return EVENT_MAPPER.toEventFullDto(eventRepository.save(event));
     }
 
@@ -203,7 +204,6 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto addEventByUser(Long userId, NewEventDto newEventDto) {
-        log.info("Start create event by user [{}]", userId);
         User user = checkExistence.getUser(userId);
 
         if (newEventDto.getEventDate().isBefore(CURRENT_TIME.plusHours(2))) {
