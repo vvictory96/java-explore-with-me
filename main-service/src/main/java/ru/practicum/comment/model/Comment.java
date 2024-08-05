@@ -39,6 +39,6 @@ public class Comment {
     private Event event;
 
     @ManyToOne
-    @JoinColumn(name = "author_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "author_id", referencedColumnName = "id")
     private User author;
 }

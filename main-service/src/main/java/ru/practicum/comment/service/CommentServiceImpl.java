@@ -1,6 +1,7 @@
 package ru.practicum.comment.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,15 +13,16 @@ import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.event.enums.State;
 import ru.practicum.event.model.Event;
 import ru.practicum.exception.ConflictException;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.user.model.User;
 import ru.practicum.util.ObjectCheckExistence;
 
-import javax.validation.ValidationException;
 import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
@@ -59,6 +61,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto updateCommentById(Long commentId, Long userId, CommentDto commentDto) {
         Comment foundComment = objectCheckExistence.getComment(commentId);
+        log.info("коммент найдет {}", foundComment.getId());
 
         checkUserIsAuthorComment(foundComment.getAuthor().getId(), userId, commentId);
 
@@ -84,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
     private void checkUserIsAuthorComment(Long authorId, Long userId, Long commentId) {
         if (!Objects.equals(authorId, userId)) {
             throw new ValidationException(String.format(
-                    "User %d isn't owner of event %d",
+                    "User %d isn't owner of comment %d",
                     userId, commentId));
         }
     }
@@ -94,7 +97,7 @@ public class CommentServiceImpl implements CommentService {
             throw new ConflictException("Event status should be PUBLISHED");
         }
 
-        if (!event.getInitiator().equals(user)) {
+        if (!Objects.equals(event.getInitiator().getId(), user.getId())) {
             objectCheckExistence.checkRequestExistenceByEventIdAndUserId(event.getId(), user.getId());
         }
 

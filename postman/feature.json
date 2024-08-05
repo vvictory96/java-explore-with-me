@@ -436,7 +436,7 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Response status must be 403\", function () {\r",
+              "pm.test(\"Response status must be 409\", function () {\r",
               "    pm.response.to.have.status(409);   \r",
               "});\r",
               "\r",
@@ -575,7 +575,7 @@
               "\r",
               "const response = pm.response.json();\r",
               "\r",
-              "pm.test(\"Comments must consist fileds: id, text, author, createdOn, event\", function () {\r",
+              "pm.test(\"Comments must consist fields: id, text, author, createdOn, event\", function () {\r",
               "    pm.expect(response).to.have.property('id');\r",
               "    pm.expect(response).to.have.property('text');\r",
               "    pm.expect(response).to.have.property('author');\r",
@@ -613,7 +613,7 @@
           }
         },
         "url": {
-          "raw": "{{baseUrl}}/users/:userId/events/comments?eventId=100",
+          "raw": "{{baseUrl}}/users/:userId/events/comments?eventId=101",
           "host": [
             "{{baseUrl}}"
           ],
@@ -626,14 +626,14 @@
           "query": [
             {
               "key": "eventId",
-              "value": "100",
+              "value": "101",
               "description": "(Required) id события"
             }
           ],
           "variable": [
             {
               "key": "userId",
-              "value": "131",
+              "value": "133",
               "description": "(Required) id текущего пользователя"
             }
           ]
@@ -648,8 +648,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Response status must be 400 and containts body in json format\", function () {\r",
-              "    pm.response.to.have.status(400);    \r",
+              "pm.test(\"Response status must be 409 and containts body in json format\", function () {\r",
+              "    pm.response.to.have.status(409);    \r",
               "    pm.response.to.be.withBody;\r",
               "    pm.response.to.be.json;\r",
               "});"
@@ -672,7 +672,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"text\": \"Test commen\"\r\n}",
+          "raw": "{\r\n    \"text\": \"Test comment\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -846,11 +846,11 @@
           "variable": [
             {
               "key": "userId",
-              "value": "130"
+              "value": "133"
             },
             {
               "key": "commentId",
-              "value": "1"
+              "value": "2"
             }
           ]
         }
@@ -1036,7 +1036,7 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Response status must be 204t\", function () {\r",
+              "pm.test(\"Response status must be 204\", function () {\r",
               "    pm.response.to.have.status(204);   \r",
               "});\r",
               ""

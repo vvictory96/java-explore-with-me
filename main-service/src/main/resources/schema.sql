@@ -70,5 +70,5 @@ CREATE TABLE IF NOT EXISTS comments (
     author_id    BIGINT,
     comment_text VARCHAR(2000) NOT NULL,
     CONSTRAINT fk_event_comment FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
-    CONSTRAINT fk_user_comment FOREIGN KEY (author_id) REFERENCES users (user_id) ON DELETE CASCADE
+    CONSTRAINT fk_user_comment FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
 );
