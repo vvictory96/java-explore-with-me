@@ -9,6 +9,7 @@ import ru.practicum.comment.model.Comment;
 import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.compilation.model.Compilation;
 import ru.practicum.compilation.repository.CompilationRepository;
+import ru.practicum.event.enums.State;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.ConflictException;
@@ -21,6 +22,7 @@ import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -78,17 +80,6 @@ public class ObjectCheckExistence {
         }
     }
 
-    public void checkRequestExistenceByEventIdAndUserId(Long eventId, Long userId) {
-        ParticipationRequest result = requestRepository.findByRequesterIdAndEventId(userId, eventId)
-                .orElseThrow(() -> new ValidationException(String.format("User %d doesn't participate in event %d",
-                        userId, eventId)));
-        if (result.getStatus() != RequestStatus.CONFIRMED) {
-            throw new ValidationException(String.format("User %d doesn't participate in event %d",
-                    userId, eventId));
-        }
-
-    }
-
     public Comment getComment(Long id) {
         return commentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Comment with id %d not found", id)));
@@ -98,11 +89,34 @@ public class ObjectCheckExistence {
         return commentRepository.countAllByEventId(eventId);
     }
 
-    public void checkCommentExistenceByAuthorIdAndEventId(Long eventId, Long userId) {
-        Optional<Comment> foundComment = commentRepository.findByEventIdAndAuthorId(eventId, userId);
-        if (foundComment.isPresent()) {
-            throw new ConflictException(String.format("Пользователь с id='%s' уже оставлял комментарий к событию " +
-                    "с id='%s'", userId, eventId));
+    public void checkUserIsAuthorComment(Long authorId, Long userId, Long commentId) {
+        if (!Objects.equals(authorId, userId)) {
+            throw new ValidationException(String.format(
+                    "User %d isn't owner of comment %d",
+                    userId, commentId));
         }
     }
+
+    public void checkComment(Event event, User user) {
+        if (event.getState() != State.PUBLISHED) {
+            throw new ConflictException("Event status should be PUBLISHED");
+        }
+
+        if (!Objects.equals(event.getInitiator().getId(), user.getId())) {
+            ParticipationRequest result = requestRepository.findByRequesterIdAndEventId(user.getId(), event.getId())
+                    .orElseThrow(() -> new ValidationException(String.format("User %d doesn't participate in event %d",
+                            user.getId(), event.getId())));
+            if (result.getStatus() != RequestStatus.CONFIRMED) {
+                throw new ValidationException(String.format("User %d doesn't participate in event %d",
+                        user.getId(), event.getId()));
+            }
+        }
+
+        Optional<Comment> foundComment = commentRepository.findByEventIdAndAuthorId(event.getId(), user.getId());
+        if (foundComment.isPresent()) {
+            throw new ConflictException(String.format("Пользователь с id='%s' уже оставлял комментарий к событию " +
+                    "с id='%s'", user.getId(), event.getId()));
+        }
+    }
+
 }
