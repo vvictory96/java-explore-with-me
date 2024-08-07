@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.service.CommentService;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.enums.Sort;
@@ -27,6 +29,8 @@ import java.util.List;
 public class PublicEventController {
 
     private final EventService eventService;
+    private final CommentService commentService;
+
     private static final String FORMATTER = "yyyy-MM-dd HH:mm:ss";
 
     @GetMapping
@@ -48,5 +52,12 @@ public class PublicEventController {
     @GetMapping("/{id}")
     public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
         return eventService.findEventById(id, request);
+    }
+
+    @GetMapping("/{eventId}/comments")
+    public List<CommentDto> getAllComments(@PathVariable Long eventId,
+                                           @RequestParam(defaultValue = "0") int from,
+                                           @RequestParam(defaultValue = "10") int size) {
+        return commentService.getAllCommentsByEventId(eventId, from, size);
     }
 }
